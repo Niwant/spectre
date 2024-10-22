@@ -33,7 +33,7 @@ def extract_frames(video_path, detect_landmarks=True):
 
     face_info = collections.defaultdict(list)
 
-    fps = vidcap.get(cv2.CAP_PROP_FPS)
+    fps =fractions.Fraction(vidcap.get(cv2.CAP_PROP_FPS))
 
     with tqdm(total=int(vidcap.get(cv2.CAP_PROP_FRAME_COUNT))) as pbar:
         while True:
