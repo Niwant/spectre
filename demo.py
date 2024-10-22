@@ -203,7 +203,10 @@ def main(args):
 
     if args.audio:
         import librosa
-        wav, sr = librosa.load(args.input)
+        try:
+            wav, sr = librosa.load(args.input)
+        except RuntimeError as exc:
+            print(f"Error loading audio: {exc}")
         wav = torch.FloatTensor(wav)
         if len(wav.shape) == 1:
             wav = wav.unsqueeze(0)
