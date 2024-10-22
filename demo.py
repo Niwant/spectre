@@ -207,8 +207,8 @@ def main(args):
         if len(wav.shape) == 1:
             wav = wav.unsqueeze(0)
 
-        torchvision.io.write_video(videofolder+"_shape.mp4", vid_shape, fps=fps, audio_codec='aac', audio_array=wav, audio_fps=sr)
-        torchvision.io.write_video(videofolder+"_grid.mp4", grid_vid, fps=fps,
+        torchvision.io.write_video(videofolder+"_shape.mp4", vid_shape, fps=float(fps), audio_codec='aac', audio_array=wav, audio_fps=sr)
+        torchvision.io.write_video(videofolder+"_grid.mp4", grid_vid, fps=float(fps),
                                    audio_codec='aac', audio_array=wav, audio_fps=sr)
 
     else:
