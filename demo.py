@@ -247,9 +247,10 @@ def main(args):
 
             # Convert to mono if stereo is not supported by torchvision
             print(wav_data.ndim)
-            if wav_data.ndim > 1:  # Check if audio has more than one channel
+            wav_data.astype(np.float32)
+            if wav_data.ndim == 2 and wav_data.shape[1] == 2:  # Stereo audio
                 print("Converting stereo to mono...")
-                wav_data = np.mean(wav_data, axis=1).astype(np.float32)  # Averaging channels for mono
+                wav_data = np.mean(wav_data, axis=1).astype(np.float32)
             else:
                 wav_data = wav_data[:, np.newaxis]
 
