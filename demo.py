@@ -202,15 +202,20 @@ def main(args):
     assert original_video_length == len(vid_shape)
 
     if args.audio:
-        import librosa
-        try:
-            wav, sr = librosa.load(args.input)
-        except RuntimeError as exc:
-            print(f"Error loading audio: {exc}")
-        wav = torch.FloatTensor(wav)
-        if len(wav.shape) == 1:
-            wav = wav.unsqueeze(0)
-
+        from pydub import AudioSegment
+        from scipy.io import wavfile
+        # import librosa
+        # try:
+        #     wav, sr = librosa.load(args.input)
+        # except RuntimeError as exc:
+        #     print(f"Error loading audio: {exc}")
+        # wav = torch.FloatTensor(wav)
+        # if len(wav.shape) == 1:
+        #     wav = wav.unsqueeze(0)
+        audio = AudioSegment.from_file(args.input)
+        audio.export("temp_audio.wav", format="wav")
+        sr, wav_data = wavfile.read("temp_audio.wav")
+        wav = torch.FloatTensor(wav_data).unsqueeze(0) if len(wav_data.shape) == 1 else torch.FloatTensor(wav_data)
         torchvision.io.write_video(videofolder+"_shape.mp4", vid_shape, fps=fractions.Fraction(fps), audio_codec='aac', audio_array=wav, audio_fps=sr)
         torchvision.io.write_video(videofolder+"_grid.mp4", grid_vid, fps=fractions.Fraction(fps),
                                    audio_codec='aac', audio_array=wav, audio_fps=sr)
