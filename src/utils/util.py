@@ -267,6 +267,8 @@ def vertex_normals(vertices, faces):
 
     faces = faces.reshape(-1, 3)
     vertices_faces = vertices_faces.reshape(-1, 3, 3)
+    print("vertices_faces shape:", vertices_faces.shape)  # Should print (-1, 3, 3)
+    print("faces shape:", faces.shape)
 
     normals.index_add_(0, faces[:, 1].long(), 
                        torch.cross(vertices_faces[:, 2] - vertices_faces[:, 1], vertices_faces[:, 0] - vertices_faces[:, 1] , dim=2))
