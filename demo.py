@@ -213,8 +213,9 @@ def main(args):
             # wav = torch.FloatTensor(wav)
             # if len(wav.shape) == 1:
             #     wav = wav.unsqueeze(0)
+            print("Loading audio file with pydub...")
             audio = AudioSegment.from_file(args.input)
-            print
+            
             audio.export("temp_audio.wav", format="wav")
             sr, wav_data = wavfile.read("temp_audio.wav")
         except Exception as exc:
