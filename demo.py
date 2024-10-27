@@ -202,16 +202,12 @@ def main(args):
     assert original_video_length == len(vid_shape)
 
     if args.audio:
-        try:
-            import librosa
-            wav, sr = librosa.load(args.input)
-            wav = torch.FloatTensor(wav)
-            if len(wav.shape) == 1:
-                wav = wav.unsqueeze(0)
-  
-        except Exception as exc:
-            print(f"Error loading audio: {exc}")
-       
+   
+        import librosa
+        wav, sr = librosa.load(args.input)
+        wav = torch.FloatTensor(wav)
+        if len(wav.shape) == 1:
+            wav = wav.unsqueeze(0)
         torchvision.io.write_video(videofolder+"_shape.mp4", vid_shape, fps=fractions.Fraction(fps), audio_codec='aac', audio_array=wav, audio_fps=sr)
         torchvision.io.write_video(videofolder+"_grid.mp4", grid_vid, fps=fractions.Fraction(fps),
                                    audio_codec='aac', audio_array=wav, audio_fps=sr ,  audio_sample_fmt="fltp")
