@@ -203,18 +203,42 @@ def main(args):
 
     if args.audio:
    
-        import librosa
-        wav, sr = librosa.load(args.input)
-        wav = torch.FloatTensor(wav)
-        if len(wav.shape) == 1:
-            wav = wav.unsqueeze(0)
-        torchvision.io.write_video(videofolder+"_shape.mp4", vid_shape, fps=fractions.Fraction(fps), audio_codec='aac', audio_array=wav, audio_fps=sr)
-        torchvision.io.write_video(videofolder+"_grid.mp4", grid_vid, fps=fractions.Fraction(fps),
-                                   audio_codec='aac', audio_array=wav, audio_fps=sr)
+        # import librosa
+        # wav, sr = librosa.load(args.input)
+        # wav = torch.FloatTensor(wav)
+        # if len(wav.shape) == 1:
+        #     wav = wav.unsqueeze(0)
+        from moviepy.editor import AudioFileClip
+        from scipy.io import wavfile
+        import numpy as np
+        import torch
 
-    else:
-        torchvision.io.write_video(videofolder+"_shape.mp4", vid_shape, fps=fps)
-        torchvision.io.write_video(videofolder+"_grid.mp4", grid_vid, fps=fps)
+        print("Extracting audio using moviepy...")
+        audio_clip = AudioFileClip(args.input)
+        audio_clip.write_audiofile("temp_audio.wav")
+        print("Audio extracted successfully.")
+
+        # Load the extracted .wav audio file
+        sr, wav= wavfile.read("temp_audio.wav")
+        print(f"Loaded audio with sample rate {sr} and shape {wav.shape}")
+
+        # Convert stereo to mono if needed and ensure float32 format
+        if wav.ndim == 2:
+            print("Converting stereo to mono...")
+            wav = np.mean(wav, axis=1).astype(np.float32)
+        else:
+            wav = wav.astype(np.float32)
+
+        # Reshape mono audio to (num_samples, 1) if needed
+        if wav.ndim == 1:
+            wav = wav[:, np.newaxis]
+            torchvision.io.write_video(videofolder+"_shape.mp4", vid_shape, fps=fractions.Fraction(fps), audio_codec='aac', audio_array=wav, audio_fps=sr)
+            torchvision.io.write_video(videofolder+"_grid.mp4", grid_vid, fps=fractions.Fraction(fps),
+                                    audio_codec='aac', audio_array=wav, audio_fps=sr)
+
+        else:
+            torchvision.io.write_video(videofolder+"_shape.mp4", vid_shape, fps=fps)
+            torchvision.io.write_video(videofolder+"_grid.mp4", grid_vid, fps=fps)
         
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='DECA: Detailed Expression Capture and Animation')
