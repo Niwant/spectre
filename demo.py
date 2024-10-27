@@ -222,14 +222,14 @@ def main(args):
         sr, wav= wavfile.read("temp_audio.wav")
         print(f"Loaded audio with sample rate {sr} and shape {wav.shape}")
 
-        wav_data = wav_data.astype(np.float32)
+        wav = wav.astype(np.float32)
 
     # If mono, convert to stereo by duplicating the channel
-        if wav_data.ndim == 1:  # Mono audio
+        if wav.ndim == 1:  # Mono audio
             print("Converting mono to stereo...")
-            wav_data = np.repeat(wav_data[:, np.newaxis], 2, axis=1)  # Duplicate channel to make stereo
+            wav = np.repeat(wav[:, np.newaxis], 2, axis=1)  # Duplicate channel to make stereo
 
-        print(f"Final audio shape after conversion: {wav_data.shape}, dtype: {wav_data.dtype}")
+        print(f"Final audio shape after conversion: {wav.shape}, dtype: {wav.dtype}")
 
         torchvision.io.write_video(videofolder+"_shape.mp4", vid_shape, fps=fractions.Fraction(fps), audio_codec='aac', audio_array=wav, audio_fps=sr)
         torchvision.io.write_video(videofolder+"_grid.mp4", grid_vid, fps=fractions.Fraction(fps),
