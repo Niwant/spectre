@@ -222,21 +222,20 @@ def main(args):
         sr, wav= wavfile.read("temp_audio.wav")
         print(f"Loaded audio with sample rate {sr} and shape {wav.shape}")
 
-        # Convert stereo to mono if needed and ensure float32 format
-        if wav.ndim == 2:
-            print("Converting stereo to mono...")
-            wav = np.mean(wav, axis=1).astype(np.float32)
-        else:
-            wav = wav.astype(np.float32)
+        wav_data = wav_data.astype(np.float32)
 
-        # Reshape mono audio to (num_samples, 1) if needed
-        if wav.ndim == 1:
-            wav = wav[:, np.newaxis]
-            torchvision.io.write_video(videofolder+"_shape.mp4", vid_shape, fps=fractions.Fraction(fps), audio_codec='aac', audio_array=wav, audio_fps=sr)
-            torchvision.io.write_video(videofolder+"_grid.mp4", grid_vid, fps=fractions.Fraction(fps),
-                                    audio_codec='aac', audio_array=wav, audio_fps=sr)
+    # If mono, convert to stereo by duplicating the channel
+        if wav_data.ndim == 1:  # Mono audio
+            print("Converting mono to stereo...")
+            wav_data = np.repeat(wav_data[:, np.newaxis], 2, axis=1)  # Duplicate channel to make stereo
 
-        else:
+        print(f"Final audio shape after conversion: {wav_data.shape}, dtype: {wav_data.dtype}")
+
+        torchvision.io.write_video(videofolder+"_shape.mp4", vid_shape, fps=fractions.Fraction(fps), audio_codec='aac', audio_array=wav, audio_fps=sr)
+        torchvision.io.write_video(videofolder+"_grid.mp4", grid_vid, fps=fractions.Fraction(fps),
+                                audio_codec='aac', audio_array=wav, audio_fps=sr)
+
+    else:
             torchvision.io.write_video(videofolder+"_shape.mp4", vid_shape, fps=fps)
             torchvision.io.write_video(videofolder+"_grid.mp4", grid_vid, fps=fps)
         
