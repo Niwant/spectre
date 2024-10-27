@@ -212,12 +212,12 @@ def main(args):
             wav = torch.FloatTensor(wav)
             if len(wav.shape) == 1:
                 wav = wav.unsqueeze(0)
-            wav = torch.FloatTensor(wav_data).unsqueeze(0) if len(wav_data.shape) == 1 else torch.FloatTensor(wav_data)
+            
+           
             
         except Exception as exc:
             print(f"Error loading audio: {exc}")
-        wav = torch.FloatTensor(wav_data).unsqueeze(0) if len(wav_data.shape) == 1 else torch.FloatTensor(wav_data)
-        wav = np.mean(wav, axis=1).astype(np.float32)
+       
         torchvision.io.write_video(videofolder+"_shape.mp4", vid_shape, fps=fractions.Fraction(fps), audio_codec='aac', audio_array=wav, audio_fps=sr)
         torchvision.io.write_video(videofolder+"_grid.mp4", grid_vid, fps=fractions.Fraction(fps),
                                    audio_codec='aac', audio_array=wav, audio_fps=sr ,  audio_sample_fmt="fltp")
