@@ -202,85 +202,30 @@ def main(args):
     assert original_video_length == len(vid_shape)
 
     if args.audio:
-    #     try:
-    #         from moviepy.editor import AudioFileClip
-    #         from scipy.io import wavfile
-    #         # import librosa
-    #         # try:
-    #         #     wav, sr = librosa.load(args.input)
-    #         # except RuntimeError as exc:
-    #         #     print(f"Error loading audio: {exc}")
-    #         # wav = torch.FloatTensor(wav)
-    #         # if len(wav.shape) == 1:
-    #         #     wav = wav.unsqueeze(0)
-    #         print("Loading audio file with pydub...")
-    #         audio_clip = AudioFileClip(args.input)
-    #         audio_clip.write_audiofile("temp_audio.wav")
-    #         print("Audio extracted with moviepy.")
-
-    #         sr, wav_data = wavfile.read("temp_audio.wav")
-    #         # wav = torch.FloatTensor(wav_data).unsqueeze(0) if len(wav_data.shape) == 1 else torch.FloatTensor(wav_data)
-            
-    #     except Exception as exc:
-    #         print(f"Error loading audio: {exc}")
-    #     wav = torch.FloatTensor(wav_data).unsqueeze(0) if len(wav_data.shape) == 1 else torch.FloatTensor(wav_data)
-    #     wav = np.mean(wav, axis=1).astype(np.float32)
-    #     torchvision.io.write_video(videofolder+"_shape.mp4", vid_shape, fps=fractions.Fraction(fps), audio_codec='aac', audio_array=wav, audio_fps=sr)
-    #     torchvision.io.write_video(videofolder+"_grid.mp4", grid_vid, fps=fractions.Fraction(fps),
-    #                                audio_codec='aac', audio_array=wav, audio_fps=sr ,  audio_sample_fmt="fltp")
-
-    # else:
-    #     torchvision.io.write_video(videofolder+"_shape.mp4", vid_shape, fps=fps)
-    #     torchvision.io.write_video(videofolder+"_grid.mp4", grid_vid, fps=fps)
         try:
-            from moviepy.editor import AudioFileClip
-            from scipy.io import wavfile
-
-            # Extract audio from the input video and save as a temporary .wav file
-            print("Extracting audio using moviepy...")
-            audio_clip = AudioFileClip(args.input)
-            audio_clip.write_audiofile("temp_audio.wav")
-            print("Audio extracted successfully.")
-
-            # Read the audio file using scipy
-            sr, wav_data = wavfile.read("temp_audio.wav")
-
-            # Convert to mono if stereo is not supported by torchvision
-            print(wav_data.ndim)
-            wav_data.astype(np.float32)
-            if wav_data.ndim == 2 and wav_data.shape[1] == 2:  # Stereo audio
-                print("Converting stereo to mono...")
-                wav_data = np.mean(wav_data, axis=1).astype(np.float32)
-            else:
-                wav_data = wav_data[:, np.newaxis]
-
-            # Write video with extracted audio
-            torchvision.io.write_video(
-                videofolder + "_shape.mp4", 
-                vid_shape, 
-                fps=fractions.Fraction(fps), 
-                audio_codec='aac', 
-                audio_array=wav_data, 
-                audio_fps=sr
-            )
-            torchvision.io.write_video(
-                videofolder + "_grid.mp4", 
-                grid_vid, 
-                fps=fractions.Fraction(fps),
-                audio_codec='aac', 
-                audio_array=wav_data, 
-                audio_fps=sr, 
-                audio_sample_fmt="fltp"  # Float32 planar format, which torchvision may expect
-            )
-
+            
+            import librosa
+            try:
+                wav, sr = librosa.load(args.input)
+            except RuntimeError as exc:
+                print(f"Error loading audio: {exc}")
+            wav = torch.FloatTensor(wav)
+            if len(wav.shape) == 1:
+                wav = wav.unsqueeze(0)
+            wav = torch.FloatTensor(wav_data).unsqueeze(0) if len(wav_data.shape) == 1 else torch.FloatTensor(wav_data)
+            
         except Exception as exc:
-            print(f"Error loading or processing audio: {exc}")
+            print(f"Error loading audio: {exc}")
+        wav = torch.FloatTensor(wav_data).unsqueeze(0) if len(wav_data.shape) == 1 else torch.FloatTensor(wav_data)
+        wav = np.mean(wav, axis=1).astype(np.float32)
+        torchvision.io.write_video(videofolder+"_shape.mp4", vid_shape, fps=fractions.Fraction(fps), audio_codec='aac', audio_array=wav, audio_fps=sr)
+        torchvision.io.write_video(videofolder+"_grid.mp4", grid_vid, fps=fractions.Fraction(fps),
+                                   audio_codec='aac', audio_array=wav, audio_fps=sr ,  audio_sample_fmt="fltp")
 
     else:
-        # Write videos without audio
-        torchvision.io.write_video(videofolder + "_shape.mp4", vid_shape, fps=fps)
-        torchvision.io.write_video(videofolder + "_grid.mp4", grid_vid, fps=fps)
-
+        torchvision.io.write_video(videofolder+"_shape.mp4", vid_shape, fps=fps)
+        torchvision.io.write_video(videofolder+"_grid.mp4", grid_vid, fps=fps)
+        
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='DECA: Detailed Expression Capture and Animation')
 
