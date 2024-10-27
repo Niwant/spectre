@@ -203,7 +203,7 @@ def main(args):
 
     if args.audio:
         try:
-            from pydub import AudioSegment
+            from moviepy.editor import AudioFileClip
             from scipy.io import wavfile
             # import librosa
             # try:
@@ -214,10 +214,12 @@ def main(args):
             # if len(wav.shape) == 1:
             #     wav = wav.unsqueeze(0)
             print("Loading audio file with pydub...")
-            audio = AudioSegment.from_file(args.input)
-            
-            audio.export("temp_audio.wav", format="wav")
+            audio_clip = AudioFileClip(args.input)
+            audio_clip.write_audiofile("temp_audio.wav")
+            print("Audio extracted with moviepy.")
+
             sr, wav_data = wavfile.read("temp_audio.wav")
+            wav = torch.FloatTensor(wav_data).unsqueeze(0) if len(wav_data.shape) == 1 else torch.FloatTensor(wav_data)
         except Exception as exc:
             print(f"Error loading audio: {exc}")
         wav = torch.FloatTensor(wav_data).unsqueeze(0) if len(wav_data.shape) == 1 else torch.FloatTensor(wav_data)
