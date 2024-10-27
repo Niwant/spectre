@@ -17,6 +17,10 @@ from config import cfg as spectre_cfg
 from src.utils.util import tensor2video
 import torchvision
 import fractions
+from moviepy.editor import AudioFileClip
+from scipy.io import wavfile
+import numpy as np
+import torch
 
 def extract_frames(video_path, detect_landmarks=True):
     videofolder = os.path.splitext(video_path)[0]
@@ -208,10 +212,6 @@ def main(args):
         # wav = torch.FloatTensor(wav)
         # if len(wav.shape) == 1:
         #     wav = wav.unsqueeze(0)
-        from moviepy.editor import AudioFileClip
-        from scipy.io import wavfile
-        import numpy as np
-        import torch
 
         print("Extracting audio using moviepy...")
         audio_clip = AudioFileClip(args.input)
