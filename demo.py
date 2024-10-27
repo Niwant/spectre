@@ -250,7 +250,7 @@ def main(args):
                 print("Converting stereo to mono...")
                 wav_data = np.mean(wav_data, axis=1).astype(np.float32)  # Averaging channels for mono
             else:
-                wav_data = wav_data.astype(np.float32)
+                wav_data = wav_data[:, np.newaxis]
 
             # Write video with extracted audio
             torchvision.io.write_video(
