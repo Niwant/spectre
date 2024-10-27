@@ -220,6 +220,7 @@ def main(args):
 
             sr, wav_data = wavfile.read("temp_audio.wav")
             wav = torch.FloatTensor(wav_data).unsqueeze(0) if len(wav_data.shape) == 1 else torch.FloatTensor(wav_data)
+            wav = wav.astype(np.float32) 
         except Exception as exc:
             print(f"Error loading audio: {exc}")
         wav = torch.FloatTensor(wav_data).unsqueeze(0) if len(wav_data.shape) == 1 else torch.FloatTensor(wav_data)
