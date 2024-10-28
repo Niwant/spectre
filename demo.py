@@ -255,6 +255,7 @@ import librosa
 from moviepy.editor import AudioFileClip
 from scipy.io import wavfile
 import collections
+import gc
 
 def extract_frames(video_path, detect_landmarks=True):
     videofolder = os.path.splitext(video_path)[0]
@@ -325,6 +326,7 @@ def main(args):
         landmarks = landmarks_interpolate(landmarks)
         if landmarks is None:
             print('No faces detected in input {}'.format(args.input))
+            return
 
     original_video_length = len(image_paths)
     image_paths.insert(0, image_paths[0])
@@ -340,7 +342,7 @@ def main(args):
     landmarks = np.array(landmarks)
     L = 50
     indices = list(range(len(image_paths)))
-    overlapping_indices = [indices[i: i + L] for i in range(0, len(indices), L-4)]
+    overlapping_indices = [indices[i: i + L] for i in range(0, len(indices), L - 4)]
 
     if len(overlapping_indices[-1]) < 5:
         overlapping_indices[-2] = overlapping_indices[-2] + overlapping_indices[-1]
@@ -354,11 +356,12 @@ def main(args):
 
     with torch.no_grad():
         for chunk_id in range(len(overlapping_indices)):
-            print('Processing frames {} to {}'.format(overlapping_indices[chunk_id][0], overlapping_indices[chunk_id][-1]))
+            print(f'Processing frames {overlapping_indices[chunk_id][0]} to {overlapping_indices[chunk_id][-1]}')
             image_paths_chunk = image_paths[overlapping_indices[chunk_id]]
             landmarks_chunk = landmarks[overlapping_indices[chunk_id]] if args.crop_face else None
 
             images_list = []
+
             for j in range(len(image_paths_chunk)):
                 frame = cv2.imread(image_paths_chunk[j])
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -369,6 +372,10 @@ def main(args):
                 images_list.append(cropped_image.transpose(2, 0, 1))
 
             images_array = torch.from_numpy(np.array(images_list)).float().to(args.device)
+
+            # Free up memory here to avoid GPU memory overflow
+            torch.cuda.empty_cache()
+            gc.collect()
 
             codedict, initial_deca_exp, initial_deca_jaw = spectre.encode(images_array)
             codedict['exp'] += initial_deca_exp
@@ -387,6 +394,10 @@ def main(args):
             opdict, visdict = spectre.decode(codedict, rendering=True, vis_lmk=False, return_vis=True)
             all_shape_images.append(visdict['shape_images'].detach().cpu())
             all_images.append(codedict['images'].detach().cpu())
+
+            # Clear CUDA cache and perform garbage collection after each chunk
+            torch.cuda.empty_cache()
+            gc.collect()
 
     vid_shape = tensor2video(torch.cat(all_shape_images, dim=0))[2:-2]
     vid_orig = tensor2video(torch.cat(all_images, dim=0))[2:-2]
