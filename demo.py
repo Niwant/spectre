@@ -408,8 +408,8 @@ def main(args):
     if args.audio:
         wav, sr = librosa.load(args.input)
         wav = torch.FloatTensor(wav).unsqueeze(0) if len(wav.shape) == 1 else torch.FloatTensor(wav)
-        torchvision.io.write_video(f"{videofolder}_shape.mp4", vid_shape, fps=fps, audio_array=wav, audio_fps=sr)
-        torchvision.io.write_video(f"{videofolder}_grid.mp4", grid_vid, fps=fps, audio_array=wav, audio_fps=sr)
+        torchvision.io.write_video(f"{videofolder}_shape.mp4", vid_shape, fps=fps, audio_array=wav, audio_codec='aac',audio_fps=sr)
+        torchvision.io.write_video(f"{videofolder}_grid.mp4", grid_vid, fps=fps, audio_array=wav, audio_codec='aac', audio_fps=sr)
     else:
         torchvision.io.write_video(f"{videofolder}_shape.mp4", vid_shape, fps=fps)
         torchvision.io.write_video(f"{videofolder}_grid.mp4", grid_vid, fps=fps)
